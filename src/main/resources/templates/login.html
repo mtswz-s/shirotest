@@ -9,7 +9,19 @@
 <form th:action="@{/login}" method="post">
 姓名<input type="text" name="name"><br>
 密码<input type="password" name="password"><br>
+验证码<input type="text" name="code"/><img onclick="change(this)" th:src="@{/checkcode}">
 <input type="submit"><br>
 </form>
+<br>
+<form th:action="@{/register}" method="post">
+    姓名<input type="text" name="name"><br>
+    密码<input type="password" name="pwd"><br>
+    <input type="submit"><br>
+</form>
+<script>
+    function change(img) {
+        img.src = "/checkcode";
+    }
+</script>
 </body>
 </html>

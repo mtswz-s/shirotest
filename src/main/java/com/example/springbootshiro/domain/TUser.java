@@ -2,26 +2,33 @@ package com.example.springbootshiro.domain;
 
 import java.io.Serializable;
 
-public class User implements Serializable {
-
+/**
+ * (TUser)实体类
+ *
+ * @author makejava
+ * @since 2020-08-22 18:31:10
+ */
+public class TUser implements Serializable {
+    private static final long serialVersionUID = -47846899595896295L;
+    
     private Integer id;
-
+    
     private String name;
-
+    
     private String pwd;
-
-    private String prams;
-
-    public User() {
-    }
+    
+    private Integer roleId;
+    
+    private String salt;
 
     @Override
     public String toString() {
-        return "User{" +
+        return "TUser{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", pwd='" + pwd + '\'' +
-                ", prams='" + prams + '\'' +
+                ", roleId=" + roleId +
+                ", salt='" + salt + '\'' +
                 '}';
     }
 
@@ -49,18 +56,20 @@ public class User implements Serializable {
         this.pwd = pwd;
     }
 
-    public String getPrams() {
-        return prams;
+    public Integer getRoleId() {
+        return roleId;
     }
 
-    public void setPrams(String prams) {
-        this.prams = prams;
+    public void setRoleId(Integer roleId) {
+        this.roleId = roleId;
     }
 
-    public User(Integer id, String name, String pwd, String prams) {
-        this.id = id;
-        this.name = name;
-        this.pwd = pwd;
-        this.prams = prams;
+    public String getSalt() {
+        return salt;
     }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
+    }
+
 }

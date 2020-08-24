@@ -1,6 +1,9 @@
 package com.example.springbootshiro.config;
 
-import com.example.springbootshiro.domain.User;
+import com.example.springbootshiro.cache.MySalt;
+import com.example.springbootshiro.domain.TPerm;
+import com.example.springbootshiro.domain.TRole;
+import com.example.springbootshiro.domain.TUser;
 import com.example.springbootshiro.service.UserService;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
@@ -10,7 +13,11 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.ObjectUtils;
+
+import java.util.List;
 
 public class UserRealm extends AuthorizingRealm {
     @Autowired
@@ -25,8 +32,14 @@ public class UserRealm extends AuthorizingRealm {
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
         //info.addStringPermission("user:add");
         Subject subject = SecurityUtils.getSubject();
-        User currentUser = (User) subject.getPrincipal();
-        info.addStringPermission(currentUser.getPrams());
+        //获取并添加角色
+        TRole role = userService.getRole((String) subject.getPrincipal());
+        info.addRole(role.getName());
+
+        List<TPerm> perms = userService.getPerms(role.getId());
+        perms.forEach((perm)->{
+            info.addStringPermission(perm.getPerm());
+        });
         System.out.println("执行了授权。。。。。");
         return info;
     }
@@ -40,20 +53,13 @@ public class UserRealm extends AuthorizingRealm {
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
         System.out.println("执行了认证。。。。。");
-       /* String name="zs";
-        String password="123";*/
-        /*if (!name.equals(token.getUsername())) {
-            return null;
-        }*/
         UsernamePasswordToken token= (UsernamePasswordToken)authenticationToken;
-        User user = userService.findByName(token.getUsername());
-        if (user==null) {
-            return null;
+        TUser user = userService.login(token.getUsername(),new String(token.getPassword()));
+        System.out.println("==========="+user+"============");
+        if (!ObjectUtils.isEmpty(user)) {
+            SecurityUtils.getSubject().getSession().setAttribute("user",user);
+            return new SimpleAuthenticationInfo(user.getName(),user.getPwd(), new MySalt(user.getSalt()),getName());
         }
-        Subject subject = SecurityUtils.getSubject();
-        Session session = subject.getSession();
-        session.setAttribute("user",user);
-        //return new SimpleAuthenticationInfo("",password,"");
-        return new SimpleAuthenticationInfo(user,user.getPwd(),getName());
+        return null;
     }
 }
